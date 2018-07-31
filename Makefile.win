@@ -1,0 +1,54 @@
+CC = cl -nologo
+
+epd: src/epd.obj src/crypto.obj src/db.obj src/db_util.obj src/kmp.obj src/key.obj src/util.obj src/stream.obj src/chacha.obj src/sha256.obj src/ed.obj src/curve25519-donna.obj
+	$(CC) /Febuild/$@ src/epd.obj src/crypto.obj advapi32.lib src/db.obj src/db_util.obj src/kmp.obj src/key.obj src/util.obj src/stream.obj src/chacha.obj src/sha256.obj src/ed.obj src/curve25519-donna.obj
+
+test_key: src/test/test_key.obj src/stream.obj src/crypto.obj src/key.obj src/sha256.obj src/ed.obj src/chacha.obj src/curve25519-donna.obj src/util.obj
+	$(CC) /Fetest/$@ src/test/test_key.obj src/stream.obj src/crypto.obj advapi32.lib src/key.obj src/sha256.obj src/ed.obj src/chacha.obj src/curve25519-donna.obj src/util.obj
+	
+test_parser: src/test/test_parser.obj
+	$(CC) /Fetest/$@ src/test/test_parser.obj
+
+test_db: src/test/test_db.obj src/db.obj src/db_util.obj src/stream.obj src/crypto.obj src/sha256.obj src/chacha.obj src/curve25519-donna.obj
+	$(CC) /Fetest/$@ src/test/test_db.obj src/db.obj src/db_util.obj src/stream.obj src/crypto.obj advapi32.lib src/sha256.obj src/chacha.obj src/curve25519-donna.obj
+	
+crypto: src/crypto.obj src/sha256.obj src/chacha.obj src/curve25519-donna.obj src/ed.obj
+	$(CC) /Febuild/$@ src/crypto.obj advapi32.lib src/sha256.obj src/chacha.obj src/curve25519-donna.obj src/ed.obj
+
+src/epd.obj: src/epd.c
+	$(CC) /c /Fo$@ src/epd.c
+src/key.obj: src/key.c src/key.h
+	$(CC) /c /Fo$@ src/key.c
+src/db.obj: src/db.c src/db.h
+	$(CC) /c /Fo$@ src/db.c
+src/db_util.obj: src/db_util.c src/db.h
+	$(CC) /c /Fo$@ src/db_util.c
+src/kmp.obj: src/kmp.c
+	$(CC) /c /Fo$@ src/kmp.c
+src/crypto.obj: src/crypto.c src/crypto.h
+	$(CC) /c /Fo$@ src/crypto.c
+src/stream.obj: src/stream.c src/stream.h
+	$(CC) /c /Fo$@ src/stream.c
+src/chacha.obj: src/chacha.c src/chacha.h
+	$(CC) /c /Fo$@ src/chacha.c
+src/sha256.obj: src/sha256.c src/sha256.h
+	$(CC) /c /Fo$@ src/sha256.c
+src/ed.obj: src/ed.c src/ed.h
+	$(CC) /c /Fo$@ src/ed.c
+src/curve25519-donna.obj: src/curve25519-donna.c
+	$(CC) /c /Fo$@ src/curve25519-donna.c
+src/util.obj: src/util.c src/util.h
+	$(CC) /c /Fo$@ src/util.c
+
+
+src/test/test_db.obj: src/test/test_db.c 
+	$(CC) /c /Fo$@ src/test/test_db.c
+src/test/test_parser.obj: src/test/test_parser.c src/optparse.h
+	$(CC) /c /Fo$@ src/test/test_parser.c
+src/test/test_key.obj: src/test/test_key.c 
+	$(CC) /c /Fo$@ src/test/test_key.c
+
+.PHONY:
+clean: 
+	cd src && del /F *.obj
+	cd src/test && del /F *.obj
