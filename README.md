@@ -68,7 +68,7 @@ database operation (feed in by `-k` option). The database file will ends with
 ### Key file
 
 ```
-\[Public Key (32)\]\[Secret key* (64)\]\[Signature (64)\]
+[Public Key (32)][Secret key* (64)][Signature (64)]
 ```
 
 *The secret key is 32 bytes long by itself, and there are some addtional 
@@ -79,7 +79,7 @@ information (iv, protective hash). The total length is 64 bytes.
 The database structure is slightly complicated.
 
 ```
-\[IV\]\[\Ephermeral Public Key]\[ENC 1\]\[Checksum 1\]\[ENC 2\]\[Checksum 2\]
+[IV][Ephermeral Public Key][ENC 1][Checksum 1][ENC 2][Checksum 2]
 ```
 
 IV is 8 bytes, Keys are 32 bytes, Checksums are 32 bytes.
