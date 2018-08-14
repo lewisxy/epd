@@ -88,7 +88,9 @@ ENC 1 is the block of header, index, and tags.
 
 ENC 2 is the block of data.
 
-Although the `Checksum 1` is inserted in the middle, the encryption runs through `ENC 1` and `ENC 2`. This is an important security measure against Reuse key/iv attack.
+Although the `Checksum 1` is inserted in the middle, the encryption runs 
+through `ENC 1` and `ENC 2`. This is an important security measure against 
+Reuse key/iv attack.
 
 #### ENC 1
 
@@ -113,9 +115,13 @@ nentry is the number of entries in the database
 
 ##### Tags
 
-The first part of tags are 8 bytes, which is 64 bits, each representing the availability of the that tag. If there are `m` tags available, there should be `m` `1`s in this section. 
+The first part of tags are 8 bytes, which is 64 bits, each representing the 
+availability of the that tag. If there are `m` tags available, there should 
+be `m` `1`s in this section. 
 
-The second part of tags are `m` 64 bytes block placed in order, which contains the tag name, a `char *` type C-style string, the maximum character length is 63 (termination byte is always needed).
+The second part of tags are `m` 64 bytes block placed in order, which contains 
+the tag name, a `char *` type C-style string, the maximum character length is 
+63 (termination byte is always needed).
 
 #### ENC 2
 
@@ -126,9 +132,13 @@ The second part of tags are `m` 64 bytes block placed in order, which contains t
 [HTAG (8)][Tag (8)][Full name (128)][Note (256)][Value (128)]
 ```
 
-The data contains the same `HTAG` entry and `Tag` entry with the corresponding entry in `table`. The Full name of each entry is 128 bytes, and the name stored in table is the first 16 bytes of these 128 bytes. 
+The data contains the same `HTAG` entry and `Tag` entry with the corresponding 
+entry in `table`. The Full name of each entry is 128 bytes, and the name stored 
+in table is the first 16 bytes of these 128 bytes. 
 
-Data entries (not including HTAG) are encrypted seperately using the key in table entry (even in memory). The value encapsulated in the data entry is encrypted seperately as well.
+Data entries (not including HTAG) are encrypted seperately using the key in 
+table entry (even in memory). The value encapsulated in the data entry is 
+encrypted seperately as well.
 
 ## NOTE
 
@@ -140,6 +150,18 @@ complete one operation (without compiler optimization).
 2. There may be some minor issues/bugs of this software, since there is not 
 enough tests to prove its robostness. It is welcome to test this program and 
 provide issues/bug reports and suggestions for further improvements.
+
+## TODOs
+
+The below items are unordered
+
+1. Better customization support in `config.h`
+2. Unfinished features (add/delete tags, change data entry, change key password)
+3. Better looking UI (not GUI)
+4. Interactive Design (with mini terminal built-in)
+5. Bug fix (currently not yet Valgrind free)
+6. Better documentation
+7. ...
 
 ## Special thanks
 

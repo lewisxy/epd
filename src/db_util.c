@@ -13,6 +13,10 @@ static void print_table_entry(char *htag, int htag_len, char *name, char* fp, ch
 	}
 	if(name) {
 		printf("%s", name);
+		int i;
+		for(i = 0; i < EP_TABLE_NAME_SIZE-strlen(name); i++) {
+			printf(" ");
+		}
 		if(key || fp) printf(" | ");
 	}
 	if(fp) {

@@ -6,14 +6,15 @@
 #include "util.h"
 #include "crypto.h"
 #include "db.h"
+#include "config.h"
 
 #include "dbg.h"
 
-// Enpass database file header layout, total 84 Bytes
-//#define HEADER_PROG_NAME 0;
-//#define HEADER_VERSION 10;
-//#define HEADER_NAME 16;
-//#define HEADER_NENTRY 80;
+// Enpass database file header layout, total 72 Bytes
+//#define HEADER_PROG_NAME 0
+//#define HEADER_FORMAT_VERSION 3
+//#define HEADER_NAME 4
+//#define HEADER_NENTRY 68
 
 database *db_load(stream *db_file, char *sec)
 {
@@ -61,8 +62,8 @@ database *db_load(stream *db_file, char *sec)
 	crypto_stream_compute(ctx, header_buf, header_buf, EP_HEADER_SIZE);// in-place chacha decryption
 	
 	// check critical information
-	check(memcmp(header_buf+HEADER_PROG_NAME, EP_PROG_NAME, sizeof(EP_PROG_NAME)) == 0, "Program name verification failed");
-	check(memcmp(header_buf+HEADER_VERSION, EP_VERSION, sizeof(EP_VERSION)) == 0, "Program version verification failed");
+	check(memcmp(header_buf+HEADER_PROG_NAME, EP_PROG_NAME, strlen(EP_PROG_NAME)) == 0, "Program name verification failed");
+	check(*(header_buf+HEADER_FORMAT_VERSION) == EP_FORMAT_VERSION, "Incompatible format version");
 	
 	check(memcpy(db->header->name, header_buf+HEADER_NAME, EP_HEADER_NAME_SIZE), "Failed to copy database name");
 	check(memcpy(&db->header->nentry, header_buf+HEADER_NENTRY, 4), "Failed to copy entry count");
@@ -147,11 +148,11 @@ error:
 	return NULL;
 }
 
-// Enpass database file header layout, total 84 Bytes
-//#define HEADER_PROG_NAME 0;
-//#define HEADER_VERSION 10;
-//#define HEADER_NAME 16;
-//#define HEADER_NENTRY 80;
+// Enpass database file header layout, total 72 Bytes
+//#define HEADER_PROG_NAME 0
+//#define HEADER_FORMAT_VERSION 3
+//#define HEADER_NAME 4
+//#define HEADER_NENTRY 68
 
 /// TODO: This function may produce UNINITIALIZED MEMORY warnings in valgrind, need further inspections
 int db_write(database *db, stream *db_file, char* pub)
@@ -188,8 +189,8 @@ int db_write(database *db, stream *db_file, char* pub)
 	// serialize and encrypt header (at the same time, preparing HMAC)
 	hmac_init(hmac, (uint8_t *)shared);
 	
-	check(memcpy(header_buf+HEADER_PROG_NAME, EP_PROG_NAME, sizeof(EP_PROG_NAME)), "Failed to write program name");
-	check(memcpy(header_buf+HEADER_VERSION, EP_VERSION, sizeof(EP_VERSION)), "Failed to write program version");
+	check(memcpy(header_buf+HEADER_PROG_NAME, EP_PROG_NAME, strlen(EP_PROG_NAME)), "Failed to write program name");
+	*(header_buf+HEADER_FORMAT_VERSION) = EP_FORMAT_VERSION;
 	check(memcpy(header_buf+HEADER_NAME, db->header->name, sizeof(EP_HEADER_NAME_SIZE)), "Failed to write database name");
 	check(memcpy(header_buf+HEADER_NENTRY, &db->header->nentry, 4), "Failed to write entry count");
 	
@@ -405,7 +406,7 @@ int db_add_entry(database *db, data_entry *new_data, char *key, char *new_htag)
 	if(!new_data) {
 		// create new default entry
 		// set default table values
-		check(memcpy(db->header->table[db->header->nentry].name, EP_DEFAULT_NAME, sizeof(EP_DEFAULT_NAME)), "Failed to copy name");
+		check(secure_strncpy(db->header->table[db->header->nentry].name, EP_DEFAULT_NAME, sizeof(EP_DEFAULT_NAME)), "Failed to copy name");
 		check(memcpy(db->header->table[db->header->nentry].tag, empty_buf, EP_TAG_MAX / 8), "Failed to copy tags");
 		// leave fp as it is (all zeros)
 		
@@ -420,12 +421,12 @@ int db_add_entry(database *db, data_entry *new_data, char *key, char *new_htag)
 	
 		// set default data
 		check(memcpy(db->data[db->header->nentry].data_entry.tag, db->header->table[db->header->nentry].tag, EP_TAG_MAX / 8), "Failed to copy tag");
-		check(memcpy(db->data[db->header->nentry].data_entry.name, EP_DEFAULT_NAME, sizeof(EP_DEFAULT_NAME)), "Failed to copy name");
-		check(memcpy(db->data[db->header->nentry].data_entry.note, EP_DEFAULT_NAME, sizeof(EP_DEFAULT_NAME)), "Failed to copy note");
+		check(secure_strncpy(db->data[db->header->nentry].data_entry.name, EP_DEFAULT_NAME, sizeof(EP_DEFAULT_NAME)), "Failed to copy name");
+		check(secure_strncpy(db->data[db->header->nentry].data_entry.note, EP_DEFAULT_NAME, sizeof(EP_DEFAULT_NAME)), "Failed to copy note");
 		check(memcpy(db->data[db->header->nentry].data_entry.value, EP_DEFAULT_NAME, sizeof(EP_DEFAULT_NAME)), "Failed to copy value");
 	} else {
 		// add existing data entry
-		check(memcpy(db->header->table[db->header->nentry].name, new_data->name, EP_TABLE_NAME_SIZE), "Failed to copy name");
+		check(secure_strncpy(db->header->table[db->header->nentry].name, new_data->name, EP_TABLE_NAME_SIZE), "Failed to copy name");
 		check(memcpy(db->header->table[db->header->nentry].tag, new_data->tag, EP_TAG_MAX / 8), "Failed to copy the tag");
 		
 		// assume the value data is already encrypted by external keys

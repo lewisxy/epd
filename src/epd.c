@@ -7,6 +7,7 @@
 #include "util.h"
 #include "db.h"
 #include "key.h"
+#include "config.h"
 
 // require for correct build
 #define OPTPARSE_IMPLEMENTATION
@@ -14,8 +15,6 @@
 #include "optparse.h"
 #include "dbg.h"
 #include "docs.h"
-
-#define EP_FILE_SUFFIX ".edb"
 
 enum command {
     COMMAND_UNKNOWN = -2,

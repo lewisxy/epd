@@ -1,7 +1,7 @@
 static const char *docs_usage[] = {
-"usage epd [-k|--key <file>] [-d|--database <file>]",
-"          [-v|--version] [-h|--help]",
-"          <command> [args]",
+"usage: epd [-k|--key <file>] [-d|--database <file>]",
+"           [-v|--version] [-h|--help]",
+"           <command> [args]",
 "",
 "Commands (unique prefixes accepted):",
 "",

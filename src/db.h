@@ -6,26 +6,16 @@
 
 #include "stream.h"
 
+#include "config.h"
+
 // db structure:
 // [iv][epublic][header][table][tag table][HMAC for header table and tag table(32)][data][HMAC for data(32)]
 // [header][table][tag table][data] is encrypted
 
-#define EP_IV_SIZE 8
-#define EP_KEY_SIZE 32
-#define EP_HASH_SIZE 32
-#define EP_HTAG_SIZE 8
-#define EP_TAG_SIZE 8
-
-#define EP_HEADER_SIZE 84
-#define EP_PROG_NAME "ENCPASSDB" // 10 bytes
-#define EP_VERSION "b1.1 " // 6 bytes
-#define EP_FORMAT_VERSION 1
-#define EP_KEY_VERSION 1
-#define EP_DEFAULT_NAME "    <EMPTY>    "
+#define EP_FP_SIZE 16
 
 // each table entry has a size of 64 bytes
 #define EP_TABLE_NAME_SIZE 16
-#define EP_FP_SIZE 16
 
 typedef struct {
 	char htag[EP_HTAG_SIZE]; // hash tag of the data entry
@@ -55,11 +45,15 @@ typedef struct {
 #define TAG_DATA 12
 // the rest of the length varies ... (current maximum size is 4096+16)
 
-// Enpass database file header layout, total 84 Bytes
+// EPD database file header layout, total 72 Bytes
+#define EP_HEADER_SIZE 72
+
+// header (in file) structure
+// [PROG_NAME (3)][FORMAT_VERSION (1)][DATABASE_NAME (64)][HEADER_NENTRY(4)]
 #define HEADER_PROG_NAME 0
-#define HEADER_VERSION 10
-#define HEADER_NAME 16
-#define HEADER_NENTRY 80
+#define HEADER_FORMAT_VERSION 3
+#define HEADER_NAME 4
+#define HEADER_NENTRY 68
 
 #define EP_HEADER_NAME_SIZE 64
 typedef struct {
